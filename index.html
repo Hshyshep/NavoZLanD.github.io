@@ -3,41 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Центрирование текста</title>
+    <title>NavoZLanD</title>
+    
     <style>
-        * {
+        /* Базовые сбросы стилей */
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #090012; /* Глубокий темно-серый цвет фона */
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* НАШ СОБСТВЕННЫЙ ХОЛСТ ДЛЯ ТОЧЕК */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Фон на первом слое */
+            background-color: #090012; 
+        }
+
+        /* КОНТЕЙНЕР ДЛЯ ВАШЕГО БУДУЩЕГО ИНТЕРФЕЙСА */
+        .my-interface-wrapper {
+            position: relative;
+            z-index: 2; /* Интерфейс ПОВЕРХ фона (2 больше чем 1) */
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Мышка "прошивает" пустые места к точкам */
+            
+            /* Центрирование содержимого по умолчанию */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-sizing: border-box;
         }
 
-        body {
-            background-color: #37154d; 
-            color: #ffffff;            
-            font-family: sans-serif;
+        /* СЮДА ВСТАВЛЯЙТЕ СВОЮ КАРТОЧКУ (Удалите тестовые стили, когда начнете верстать) */
+        .my-custom-card {
+            pointer-events: auto; /* Кнопки внутри вашей карточки снова будут кликаться */
             
-           
-            display: flex;
-            justify-content: center;   
-            align-items: center;       
-            
-           
-            min-height: 100vh; 
-        }
-
-        
-        .content {
-            max-width: 80%;            
-            text-align: center;        
-            font-size: 2rem;          
+            /* Тестовый полупрозрачный блок, чтобы вы видели, где верстать */
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 60px;
+            width: 440px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
-    <div class="content">
-     !!! PNEO запрещено посещать сайт !!!
+    <!-- Наш независимый холст для анимации -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Оболочка для вашей будущей верстки -->
+    <div class="my-interface-wrapper">
+        
+        <!-- НАЧАЛО ВАШЕГО ИНТЕРФЕЙСА -->
+        <div class="my-custom-card">
+            
+            <h2 style="color: #8d56c4; margin-top: 0;">!!!PNEO запрещено посещать сайт!!!</h2>
+            <p>Сайт находится в разработке, но совсем скоро он начнет свою работу.</p>
+            
+        </div>
+        <!-- КОНЕЦ ВАШЕГО ИНТЕРФЕЙСА -->
+
     </div>
+
+    <!-- АВТОНОМНЫЙ СКРИПТ АНИМАЦИИ (БЕЗ ИНТЕРНЕТ-БИБЛИОТЕК) -->
+    <script>
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Устанавливаем размер холста под экран
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        const count = 80;       // Сколько всего точек на экране
+        const maxDistance = 140; // Расстояние (в пикселях), при котором точки соединяются в линии
+
+        // Отслеживание курсора мыши
+        const mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+
+        // Класс создания и логики движения точки
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.9; // Скорость полета по горизонтали
+                this.vy = (Math.random() - 0.5) * 0.9; // Скорость полета по вертикали
+                this.radius = Math.random() * 2 + 1.5;  // Случайный размер точки (от 1.5 до 3.5 пикселей)
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(161, 73, 255, 0.6)'; // Цвет точек
+                ctx.fill();
+            }
+            update() {
+                // Если точка вылетает за границы экрана — она отскакивает обратно
+                if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
+                if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+                
+                this.x += this.vx;
+                this.y += this.vy;
+                this.draw();
+            }
+        }
+
+        // Заполнение массива точками
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < count; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        // Логика связывания близких точек линиями
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a + 1; b < particlesArray.length; b++) {
+                    let dx = particlesArray[a].x - particlesArray[b].x;
+                    let dy = particlesArray[a].y - particlesArray[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Если две точки близко друг к другу
+                    if (distance < maxDistance) {
+                        // Чем ближе точки, тем ярче линия (эффект плавного появления)
+                        let opacity = 1 - (distance / maxDistance);
+                        ctx.strokeStyle = `rgba(161, 73, 255, ${opacity * 0.25})`; // цвет линий
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+
+                // Интерактив с мышкой: соединяем точки с курсором, если он на экране
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dxMouse = particlesArray[a].x - mouse.x;
+                    let dyMouse = particlesArray[a].y - mouse.y;
+                    let distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+                    if (distanceMouse < maxDistance + 30) {
+                        let opacityMouse = 1 - (distanceMouse / (maxDistance + 30));
+                        ctx.strokeStyle = `rgba(161, 73, 255, ${opacityMouse * 0.4})`; // Линии к мышке чуть ярче
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Цикл анимации (перерисовывает экран на каждом кадре)
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        // Перерасчет размеров при изменении окна браузера
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        // Запуск
+        init();
+        animate();
+    </script>
 
 </body>
 </html>
