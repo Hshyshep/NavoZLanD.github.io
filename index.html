@@ -398,9 +398,9 @@
                 padding: 22px;
             }
         }
-    
+    </style>
 
-        /* Стили ленты статей */
+<style>
 .navoz-posts {
     width: min(900px, calc(100% - 40px));
     margin: 60px auto;
@@ -528,7 +528,7 @@
         font-size: 13px;
     }
 }
-    </style>
+</style>
 </head>
 
 <body>
@@ -715,23 +715,22 @@
                 class="page"
                 id="posts">
 
-                <div class="navoz-posts">
-                    <div class="navoz-posts-header">
-                        <div>
-                            <div class="navoz-posts-label">СООБЩЕСТВО</div>
-                            <h2>Статьи и посты</h2>
-                            <p>Новости и события нашего сервера</p>
-                        </div>
-                        <button id="refresh-posts" class="navoz-refresh" type="button">
-                            ↻ Обновить
-                        </button>
-                    </div>
+                <h2>Статьи и посты</h2>
 
-                    <div id="posts-status" class="navoz-status">
-                        Загружаем публикации...
-                    </div>
-                    <div id="posts-feed" class="navoz-feed"></div>
+                <div class="page-description">
+                    Новости и события сервера
                 </div>
+
+                <div id="posts-status" class="navoz-status">
+                    Загружаем публикации...
+                </div>
+
+                <div id="posts-feed" class="navoz-feed"></div>
+
+                <button id="refresh-posts" class="navoz-refresh" type="button">
+                    ↻ Обновить
+                </button>
+
             </section>
 
 
@@ -1287,158 +1286,155 @@
 
     </script>
 
+<script>
+(() => {
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxAc4Ji-HNSqHsI3RG4-aUqRKvgrFHkZ4OhoVMJ9yjEgmcamJjrQxJHNFCfCDOfoe3NRA/exec';
 
-    <script>
-    (() => {
-        const API_URL = "https://script.google.com/macros/s/AKfycbxAc4Ji-HNSqHsI3RG4-aUqRKvgrFHkZ4OhoVMJ9yjEgmcamJjrQxJHNFCfCDOfoe3NRA/exec";
-        const feed = document.getElementById("posts-feed");
-        const status = document.getElementById("posts-status");
-        const refreshButton = document.getElementById("refresh-posts");
+    const feed = document.getElementById("posts-feed");
+    const status = document.getElementById("posts-status");
+    const refreshButton = document.getElementById("refresh-posts");
 
         function safeText(value) {
-            return String(value ?? "");
+        return String(value ?? "");
+    }
+
+    function formatDate(value) {
+        if (!value) return "Дата не указана";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return safeText(value);
         }
 
-        function formatDate(value) {
-            if (!value) return "Дата не указана";
-            const date = new Date(value);
-            if (Number.isNaN(date.getTime())) return safeText(value);
+        return new Intl.DateTimeFormat("ru-RU", {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }).format(date);
+    }
 
-            return new Intl.DateTimeFormat("ru-RU", {
-                dateStyle: "medium",
-                timeStyle: "short"
-            }).format(date);
-        }
+    function createPost(post) {
+        const card = document.createElement("article");
+        card.className = "navoz-card";
 
-        function createPost(post) {
-            const card = document.createElement("article");
-            card.className = "navoz-card";
+        const header = document.createElement("div");
+        header.className = "navoz-card-header";
 
-            const header = document.createElement("div");
-            header.className = "navoz-card-header";
+        const avatar = document.createElement("div");
+        avatar.className = "navoz-avatar";
 
-            const avatar = document.createElement("div");
-            avatar.className = "navoz-avatar";
+        const author = safeText(post.author || "Неизвестный автор");
+        avatar.textContent = author.slice(0, 1).toUpperCase();
 
-            const author = safeText(post.author || "Неизвестный автор");
-            avatar.textContent = author.slice(0, 1).toUpperCase();
+        const authorInfo = document.createElement("div");
 
-            const authorInfo = document.createElement("div");
-            const authorName = document.createElement("div");
-            authorName.className = "navoz-author";
-            authorName.textContent = author;
+        const authorName = document.createElement("div");
+        authorName.className = "navoz-author";
+        authorName.textContent = author;
 
-            const date = document.createElement("div");
-            date.className = "navoz-date";
-            date.textContent = formatDate(post.created_at);
+        const date = document.createElement("div");
+        date.className = "navoz-date";
+        date.textContent = formatDate(post.created_at);
 
-            authorInfo.append(authorName, date);
-            header.append(avatar, authorInfo);
+        authorInfo.append(authorName, date);
+        header.append(avatar, authorInfo);
 
-            const content = document.createElement("div");
-            content.className = "navoz-card-content";
+        const content = document.createElement("div");
+        content.className = "navoz-card-content";
 
-            const title = document.createElement("h3");
-            title.className = "navoz-card-title";
-            title.textContent = safeText(post.title || "Без названия");
+        const title = document.createElement("h3");
+        title.className = "navoz-card-title";
+        title.textContent = safeText(post.title || "Без названия");
 
-            const text = document.createElement("div");
-            text.className = "navoz-card-text";
-            text.textContent = safeText(post.text);
+        const text = document.createElement("div");
+        text.className = "navoz-card-text";
+        text.textContent = safeText(post.text);
 
-            content.append(title, text);
-            card.append(header);
+        content.append(title, text);
+        card.append(header);
 
-            const imageUrl = safeText(post.image_url).trim();
-            if (imageUrl) {
-                try {
-                    const url = new URL(imageUrl);
-                    if (url.protocol === "https:") {
-                        const image = document.createElement("img");
-                        image.className = "navoz-card-image";
-                        image.src = url.href;
-                        image.alt = safeText(post.title || "Изображение статьи");
-                        image.loading = "lazy";
-                        image.referrerPolicy = "no-referrer";
-                        image.onerror = () => image.remove();
-                        card.append(image);
-                    }
-                } catch (_) {
-                    // Некорректная ссылка — изображение не показываем.
+        const imageUrl = safeText(post.image_url).trim();
+
+        if (imageUrl) {
+            try {
+                const url = new URL(imageUrl);
+
+                if (url.protocol === "https:") {
+                    const image = document.createElement("img");
+                    image.className = "navoz-card-image";
+                    image.src = url.href;
+                    image.alt = safeText(post.title || "Изображение статьи");
+                    image.loading = "lazy";
+                    image.referrerPolicy = "no-referrer";
+                    image.onerror = () => image.remove();
+
+                    card.append(image);
                 }
+            } catch (_) {
+                // Пропускаем некорректную ссылку.
             }
-
-            card.append(content);
-            return card;
         }
 
-        function loadPosts() {
-            status.textContent = "Загружаем публикации...";
-            feed.replaceChildren();
+        card.append(content);
+        return card;
+    }
 
-            if (window.navozPostsTimer) clearTimeout(window.navozPostsTimer);
-            if (window.navozPostsScript) {
-                window.navozPostsScript.remove();
-                window.navozPostsScript = null;
+
+
+    let requestId = 0;
+
+    window.navozPostsCallback = function(data) {
+        if (!data || !data.success) {
+            status.textContent = "Не удалось загрузить статьи: " +
+                ((data && data.error) || "ошибка API");
+            return;
+        }
+
+        const posts = Array.isArray(data.posts) ? [...data.posts] : [];
+
+        feed.replaceChildren();
+
+        if (posts.length === 0) {
+            status.textContent = "Пока публикаций нет.";
+            return;
+        }
+
+        posts.reverse().forEach(post => {
+            feed.appendChild(createPost(post));
+        });
+
+        status.textContent = "Публикаций: " + posts.length;
+    };
+
+    function loadPosts() {
+        const currentId = ++requestId;
+        status.textContent = "Загружаем публикации...";
+        feed.replaceChildren();
+
+        const oldScript = document.getElementById("navoz-posts-jsonp");
+        if (oldScript) oldScript.remove();
+
+        const script = document.createElement("script");
+        script.id = "navoz-posts-jsonp";
+        script.src = API_URL +
+            "?action=posts&callback=navozPostsCallback&t=" +
+            Date.now();
+
+        script.onerror = () => {
+            if (currentId === requestId) {
+                status.textContent =
+                    "Не удалось подключиться к API Google Apps Script.";
+                console.error("NavoZLanD API: JSONP script error", script.src);
             }
+        };
 
-            window.navozPostsCallback = function(data) {
-                clearTimeout(window.navozPostsTimer);
+        document.body.appendChild(script);
+    }
 
-                if (window.navozPostsScript) {
-                    window.navozPostsScript.remove();
-                    window.navozPostsScript = null;
-                }
-
-                if (!data || !data.success) {
-                    status.textContent =
-                        (data && data.error) || "Не удалось загрузить статьи.";
-                    return;
-                }
-
-                const posts = Array.isArray(data.posts) ? data.posts : [];
-
-                if (posts.length === 0) {
-                    status.textContent = "Пока публикаций нет.";
-                    return;
-                }
-
-                // API отдаёт старые записи первыми, показываем новые сверху.
-                posts.reverse().forEach(post => {
-                    feed.appendChild(createPost(post));
-                });
-
-                status.textContent = "Публикаций: " + posts.length;
-            };
-
-            const script = document.createElement("script");
-            window.navozPostsScript = script;
-
-            script.src = API_URL +
-                "?action=posts&callback=navozPostsCallback&t=" + Date.now();
-
-            script.onerror = function() {
-                clearTimeout(window.navozPostsTimer);
-                script.remove();
-                window.navozPostsScript = null;
-                status.textContent =
-                    "Не удалось обратиться к Google Apps Script. Проверь URL и развёртывание.";
-            };
-
-            window.navozPostsTimer = setTimeout(function() {
-                script.remove();
-                window.navozPostsScript = null;
-                status.textContent =
-                    "Превышено время ожидания. Попробуй обновить страницу.";
-            }, 15000);
-
-            document.head.appendChild(script);
-        }
-
-        refreshButton.addEventListener("click", loadPosts);
-        loadPosts();
-    })();
-    </script>
+    refreshButton.addEventListener("click", loadPosts);
+    loadPosts();
+})();
+</script>
 
 </body>
 </html>
