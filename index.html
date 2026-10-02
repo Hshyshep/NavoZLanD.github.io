@@ -398,6 +398,136 @@
                 padding: 22px;
             }
         }
+    
+
+        /* Стили ленты статей */
+.navoz-posts {
+    width: min(900px, calc(100% - 40px));
+    margin: 60px auto;
+    color: #f4edff;
+    font-family: inherit;
+}
+
+.navoz-posts-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.navoz-posts-label {
+    color: #bb86fc;
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: 700;
+}
+
+.navoz-posts-header h2 {
+    font-size: clamp(26px, 4vw, 38px);
+    margin: 8px 0;
+}
+
+.navoz-posts-header p {
+    color: #a99bb9;
+    margin: 0;
+}
+
+.navoz-refresh {
+    color: white;
+    background: rgba(150, 70, 255, .13);
+    border: 1px solid rgba(180, 120, 255, .3);
+    border-radius: 12px;
+    padding: 11px 15px;
+    cursor: pointer;
+}
+
+.navoz-refresh:hover {
+    background: rgba(150, 70, 255, .3);
+}
+
+.navoz-status {
+    color: #b8a9c9;
+    text-align: center;
+    padding: 25px;
+}
+
+.navoz-feed {
+    display: grid;
+    gap: 22px;
+}
+
+.navoz-card {
+    overflow: hidden;
+    border: 1px solid rgba(190, 140, 255, .18);
+    background: rgba(35, 17, 52, .7);
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, .15);
+}
+
+.navoz-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+}
+
+.navoz-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7939d4, #d05bff);
+    color: white;
+    font-weight: 800;
+}
+
+.navoz-author {
+    font-weight: 700;
+}
+
+.navoz-date {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #a99bb9;
+}
+
+.navoz-card-content {
+    padding: 0 20px 20px;
+}
+
+.navoz-card-title {
+    font-size: 22px;
+    margin: 0 0 10px;
+    overflow-wrap: anywhere;
+}
+
+.navoz-card-text {
+    color: #d2c5df;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.navoz-card-image {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, .2);
+}
+
+@media (max-width: 600px) {
+    .navoz-posts-header {
+        align-items: flex-start;
+    }
+
+    .navoz-posts-header p {
+        font-size: 13px;
+    }
+}
     </style>
 </head>
 
@@ -585,16 +715,23 @@
                 class="page"
                 id="posts">
 
-                <h2>Статьи и посты</h2>
+                <div class="navoz-posts">
+                    <div class="navoz-posts-header">
+                        <div>
+                            <div class="navoz-posts-label">СООБЩЕСТВО</div>
+                            <h2>Статьи и посты</h2>
+                            <p>Новости и события нашего сервера</p>
+                        </div>
+                        <button id="refresh-posts" class="navoz-refresh" type="button">
+                            ↻ Обновить
+                        </button>
+                    </div>
 
-                <div class="page-description">
-                    Новости и события сервера
+                    <div id="posts-status" class="navoz-status">
+                        Загружаем публикации...
+                    </div>
+                    <div id="posts-feed" class="navoz-feed"></div>
                 </div>
-
-                <div class="empty-box">
-                    Здесь будут публиковаться новости NavoZLanD.
-                </div>
-
             </section>
 
 
@@ -1150,296 +1287,158 @@
 
     </script>
 
-</body>
-<!-- NavoZLanD: Лента статей -->
-<section id="posts-section" class="navoz-posts">
-    <div class="navoz-posts-header">
-        <div>
-            <div class="navoz-posts-label">СООБЩЕСТВО</div>
-            <h2>Статьи и посты</h2>
-            <p>Новости и события нашего сервера</p>
-        </div>
 
-        <button id="refresh-posts" class="navoz-refresh">
-            ↻ Обновить
-        </button>
-    </div>
+    <script>
+    (() => {
+        const API_URL = "https://script.google.com/macros/s/AKfycbxAc4Ji-HNSqHsI3RG4-aUqRKvgrFHkZ4OhoVMJ9yjEgmcamJjrQxJHNFCfCDOfoe3NRA/exec";
+        const feed = document.getElementById("posts-feed");
+        const status = document.getElementById("posts-status");
+        const refreshButton = document.getElementById("refresh-posts");
 
-    <div id="posts-status" class="navoz-status">
-        Загружаем публикации...
-    </div>
-
-    <div id="posts-feed" class="navoz-feed"></div>
-</section>
-
-<style>
-.navoz-posts {
-    width: min(900px, calc(100% - 40px));
-    margin: 60px auto;
-    color: #f4edff;
-    font-family: inherit;
-}
-
-.navoz-posts-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.navoz-posts-label {
-    color: #bb86fc;
-    font-size: 11px;
-    letter-spacing: 3px;
-    font-weight: 700;
-}
-
-.navoz-posts-header h2 {
-    font-size: clamp(26px, 4vw, 38px);
-    margin: 8px 0;
-}
-
-.navoz-posts-header p {
-    color: #a99bb9;
-    margin: 0;
-}
-
-.navoz-refresh {
-    color: white;
-    background: rgba(150, 70, 255, .13);
-    border: 1px solid rgba(180, 120, 255, .3);
-    border-radius: 12px;
-    padding: 11px 15px;
-    cursor: pointer;
-}
-
-.navoz-refresh:hover {
-    background: rgba(150, 70, 255, .3);
-}
-
-.navoz-status {
-    color: #b8a9c9;
-    text-align: center;
-    padding: 25px;
-}
-
-.navoz-feed {
-    display: grid;
-    gap: 22px;
-}
-
-.navoz-card {
-    overflow: hidden;
-    border: 1px solid rgba(190, 140, 255, .18);
-    background: rgba(35, 17, 52, .7);
-    border-radius: 20px;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, .15);
-}
-
-.navoz-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 18px 20px;
-}
-
-.navoz-avatar {
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #7939d4, #d05bff);
-    color: white;
-    font-weight: 800;
-}
-
-.navoz-author {
-    font-weight: 700;
-}
-
-.navoz-date {
-    margin-top: 4px;
-    font-size: 12px;
-    color: #a99bb9;
-}
-
-.navoz-card-content {
-    padding: 0 20px 20px;
-}
-
-.navoz-card-title {
-    font-size: 22px;
-    margin: 0 0 10px;
-    overflow-wrap: anywhere;
-}
-
-.navoz-card-text {
-    color: #d2c5df;
-    line-height: 1.7;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.navoz-card-image {
-    display: block;
-    width: 100%;
-    max-height: 520px;
-    object-fit: contain;
-    background: rgba(0, 0, 0, .2);
-}
-
-@media (max-width: 600px) {
-    .navoz-posts-header {
-        align-items: flex-start;
-    }
-
-    .navoz-posts-header p {
-        font-size: 13px;
-    }
-}
-</style>
-
-<script>
-(() => {
-    // ВСТАВЬ СЮДА URL ВЕБ-ПРИЛОЖЕНИЯ APPS SCRIPT.
-    const API_URL = "https://script.google.com/macros/s/AKfycbxAc4Ji-HNSqHsI3RG4-aUqRKvgrFHkZ4OhoVMJ9yjEgmcamJjrQxJHNFCfCDOfoe3NRA/exec";
-
-    const feed = document.getElementById("posts-feed");
-    const status = document.getElementById("posts-status");
-    const refreshButton = document.getElementById("refresh-posts");
-
-    function safeText(value) {
-        return String(value ?? "");
-    }
-
-    function formatDate(value) {
-        if (!value) return "Дата не указана";
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return safeText(value);
+        function safeText(value) {
+            return String(value ?? "");
         }
 
-        return new Intl.DateTimeFormat("ru-RU", {
-            dateStyle: "medium",
-            timeStyle: "short"
-        }).format(date);
-    }
+        function formatDate(value) {
+            if (!value) return "Дата не указана";
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return safeText(value);
 
-    function createPost(post) {
-        const card = document.createElement("article");
-        card.className = "navoz-card";
+            return new Intl.DateTimeFormat("ru-RU", {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }).format(date);
+        }
 
-        const header = document.createElement("div");
-        header.className = "navoz-card-header";
+        function createPost(post) {
+            const card = document.createElement("article");
+            card.className = "navoz-card";
 
-        const avatar = document.createElement("div");
-        avatar.className = "navoz-avatar";
+            const header = document.createElement("div");
+            header.className = "navoz-card-header";
 
-        const author = safeText(post.author || "Неизвестный автор");
-        avatar.textContent = author.slice(0, 1).toUpperCase();
+            const avatar = document.createElement("div");
+            avatar.className = "navoz-avatar";
 
-        const authorInfo = document.createElement("div");
+            const author = safeText(post.author || "Неизвестный автор");
+            avatar.textContent = author.slice(0, 1).toUpperCase();
 
-        const authorName = document.createElement("div");
-        authorName.className = "navoz-author";
-        authorName.textContent = author;
+            const authorInfo = document.createElement("div");
+            const authorName = document.createElement("div");
+            authorName.className = "navoz-author";
+            authorName.textContent = author;
 
-        const date = document.createElement("div");
-        date.className = "navoz-date";
-        date.textContent = formatDate(post.created_at);
+            const date = document.createElement("div");
+            date.className = "navoz-date";
+            date.textContent = formatDate(post.created_at);
 
-        authorInfo.append(authorName, date);
-        header.append(avatar, authorInfo);
+            authorInfo.append(authorName, date);
+            header.append(avatar, authorInfo);
 
-        const content = document.createElement("div");
-        content.className = "navoz-card-content";
+            const content = document.createElement("div");
+            content.className = "navoz-card-content";
 
-        const title = document.createElement("h3");
-        title.className = "navoz-card-title";
-        title.textContent = safeText(post.title || "Без названия");
+            const title = document.createElement("h3");
+            title.className = "navoz-card-title";
+            title.textContent = safeText(post.title || "Без названия");
 
-        const text = document.createElement("div");
-        text.className = "navoz-card-text";
-        text.textContent = safeText(post.text);
+            const text = document.createElement("div");
+            text.className = "navoz-card-text";
+            text.textContent = safeText(post.text);
 
-        content.append(title, text);
-        card.append(header);
+            content.append(title, text);
+            card.append(header);
 
-        const imageUrl = safeText(post.image_url).trim();
-
-        if (imageUrl) {
-            try {
-                const url = new URL(imageUrl);
-
-                if (url.protocol === "https:") {
-                    const image = document.createElement("img");
-                    image.className = "navoz-card-image";
-                    image.src = url.href;
-                    image.alt = safeText(post.title || "Изображение статьи");
-                    image.loading = "lazy";
-                    image.referrerPolicy = "no-referrer";
-                    image.onerror = () => image.remove();
-
-                    card.append(image);
+            const imageUrl = safeText(post.image_url).trim();
+            if (imageUrl) {
+                try {
+                    const url = new URL(imageUrl);
+                    if (url.protocol === "https:") {
+                        const image = document.createElement("img");
+                        image.className = "navoz-card-image";
+                        image.src = url.href;
+                        image.alt = safeText(post.title || "Изображение статьи");
+                        image.loading = "lazy";
+                        image.referrerPolicy = "no-referrer";
+                        image.onerror = () => image.remove();
+                        card.append(image);
+                    }
+                } catch (_) {
+                    // Некорректная ссылка — изображение не показываем.
                 }
-            } catch (_) {
-                // Пропускаем некорректную ссылку.
             }
+
+            card.append(content);
+            return card;
         }
 
-        card.append(content);
-        return card;
-    }
+        function loadPosts() {
+            status.textContent = "Загружаем публикации...";
+            feed.replaceChildren();
 
-    async function loadPosts() {
-        status.textContent = "Загружаем публикации...";
-        feed.replaceChildren();
-
-        try {
-            if (API_URL.includes("ВСТАВЬ_СВОЙ_URL")) {
-                throw new Error("Сначала укажи URL своего Apps Script в коде.");
+            if (window.navozPostsTimer) clearTimeout(window.navozPostsTimer);
+            if (window.navozPostsScript) {
+                window.navozPostsScript.remove();
+                window.navozPostsScript = null;
             }
 
-            const response = await fetch(
-                API_URL + "?action=posts",
-                { method: "GET" }
-            );
+            window.navozPostsCallback = function(data) {
+                clearTimeout(window.navozPostsTimer);
 
-            if (!response.ok) {
-                throw new Error("Сервер ответил: " + response.status);
-            }
+                if (window.navozPostsScript) {
+                    window.navozPostsScript.remove();
+                    window.navozPostsScript = null;
+                }
 
-            const data = await response.json();
+                if (!data || !data.success) {
+                    status.textContent =
+                        (data && data.error) || "Не удалось загрузить статьи.";
+                    return;
+                }
 
-            if (!data.success) {
-                throw new Error(data.error || "Не удалось получить публикации.");
-            }
+                const posts = Array.isArray(data.posts) ? data.posts : [];
 
-            const posts = Array.isArray(data.posts) ? data.posts : [];
+                if (posts.length === 0) {
+                    status.textContent = "Пока публикаций нет.";
+                    return;
+                }
 
-            if (posts.length === 0) {
-                status.textContent = "Пока публикаций нет.";
-                return;
-            }
+                // API отдаёт старые записи первыми, показываем новые сверху.
+                posts.reverse().forEach(post => {
+                    feed.appendChild(createPost(post));
+                });
 
-            posts.reverse().forEach(post => {
-                feed.appendChild(createPost(post));
-            });
+                status.textContent = "Публикаций: " + posts.length;
+            };
 
-            status.textContent = "Публикаций: " + posts.length;
+            const script = document.createElement("script");
+            window.navozPostsScript = script;
 
-        } catch (error) {
-            console.error("NavoZLanD API:", error);
-            status.textContent = "Не удалось загрузить статьи: " + error.message;
+            script.src = API_URL +
+                "?action=posts&callback=navozPostsCallback&t=" + Date.now();
+
+            script.onerror = function() {
+                clearTimeout(window.navozPostsTimer);
+                script.remove();
+                window.navozPostsScript = null;
+                status.textContent =
+                    "Не удалось обратиться к Google Apps Script. Проверь URL и развёртывание.";
+            };
+
+            window.navozPostsTimer = setTimeout(function() {
+                script.remove();
+                window.navozPostsScript = null;
+                status.textContent =
+                    "Превышено время ожидания. Попробуй обновить страницу.";
+            }, 15000);
+
+            document.head.appendChild(script);
         }
-    }
 
-    refreshButton.addEventListener("click", loadPosts);
-    loadPosts();
-})();
-</script>
+        refreshButton.addEventListener("click", loadPosts);
+        loadPosts();
+    })();
+    </script>
+
+</body>
+</html>
